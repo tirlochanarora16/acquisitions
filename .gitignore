@@ -2,3 +2,6 @@
 /dist
 /logs
 .env
+.env.development
+.env.production
+.neon_local/

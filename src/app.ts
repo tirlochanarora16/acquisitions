@@ -19,12 +19,6 @@ app.use(
     stream: { write: (message: string) => logger.info(message.trim()) },
   })
 );
-app.use(securityMiddleware);
-
-app.get('/', (_req: Request, res: Response) => {
-  logger.info('GET / - Hello from acquisitions API');
-  res.status(200).send('Hello from acquisitions API');
-});
 
 app.get('/health', (_req: Request, res: Response) => {
   res.status(200).json({
@@ -32,6 +26,13 @@ app.get('/health', (_req: Request, res: Response) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
   });
+});
+
+app.use(securityMiddleware);
+
+app.get('/', (_req: Request, res: Response) => {
+  logger.info('GET / - Hello from acquisitions API');
+  res.status(200).send('Hello from acquisitions API');
 });
 
 app.get('/api', (_req: Request, res: Response) => {

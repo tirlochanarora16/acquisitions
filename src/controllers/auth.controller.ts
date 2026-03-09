@@ -48,7 +48,8 @@ export const signUp = async (
   } catch (error: any) {
     logger.error('Failed to sign up', { cause: error });
 
-    if (error.message.includes('user with this email already exists')) {
+    const rootMessage = error?.cause?.message ?? error?.message ?? '';
+    if (rootMessage.includes('User with this email already exists')) {
       return res
         .status(409)
         .json({ error: 'User with this email already exists' });
