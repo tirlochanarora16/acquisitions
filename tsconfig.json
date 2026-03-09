@@ -17,6 +17,7 @@
       "#models/*": ["./src/models/*"],
       "#routes/*": ["./src/routes/*"],
       "#services/*": ["./src/services/*"],
+      "#middleware/*": ["./src/middleware/*"],
       "#utils/*": ["./src/utils/*"],
       "#validation/*": ["./src/validations/*"]
     }
