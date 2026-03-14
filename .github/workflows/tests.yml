@@ -1,0 +1,67 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+    branches: [main, staging]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+      NODE_OPTIONS: --experimental-vm-modules
+      DATABASE_URL: postgres://test:test@localhost:5432/test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        id: test
+        run: |
+          if npm test; then
+            echo "test_result=success" >> $GITHUB_OUTPUT
+            echo "test_exit=0" >> $GITHUB_OUTPUT
+          else
+            echo "test_result=failure" >> $GITHUB_OUTPUT
+            echo "test_exit=1" >> $GITHUB_OUTPUT
+            echo "::error::One or more tests failed. Check the test output above for details."
+            exit 1
+          fi
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Write test summary
+        if: always()
+        run: |
+          if [ "${{ steps.test.outputs.test_result }}" = "success" ]; then
+            echo "## Test results: passed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "All tests completed successfully." >> $GITHUB_STEP_SUMMARY
+            if [ -d coverage ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### Coverage" >> $GITHUB_STEP_SUMMARY
+              echo "Coverage report has been uploaded as an artifact (retention: 30 days)." >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "## Test results: failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "One or more tests failed. Review the job log for details." >> $GITHUB_STEP_SUMMARY
+          fi
